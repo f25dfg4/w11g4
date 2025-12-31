@@ -1,0 +1,28 @@
+name: ci-wf
+on:
+  pull_request:
+    branches:
+      - develop
+    types:
+      - opened
+      - synchronize
+jobs:
+  linting_job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: clone repo on the Runner
+        uses: actions/checkout@v6
+      - name: Install Dev Dependencies
+        run: npm install
+      - name: Lint Html
+        run: npx htmlhint ./src/**/*.html
+      - name: Lint CSS files
+        run: npx stylelint "./src/**/*.css"
+  build_job:
+    needs: linting_job
+    runs-on: ubuntu-latest
+    needs: linting_job
+    steps:
+      - name: clone repo 
+        uses: actions/checkout@v6
+      
