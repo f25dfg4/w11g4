@@ -1,0 +1,23 @@
+# Build stage
+FROM node:18-alpine AS app-build-stage
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+
+# Install required tools
+RUN npm install -g htmlhint stylelint parcel
+
+# Lint (optional – remove if not needed)
+#RUN htmlhint "**/*.html"
+# RUN stylelint "**/*.css"
+
+# Build
+RUN parcel build ./src/index.html --dist-dir ./dist --public-url ./ --no-cache
+
+# Deploy stage
+FROM nginx:alpine AS deploy-stage
+COPY --from=app-build-stage /app/dist /usr/share/nginx/html
