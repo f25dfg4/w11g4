@@ -25,4 +25,24 @@ jobs:
     steps:
       - name: clone repo 
         uses: actions/checkout@v6
-      
+      - name: Install Dev Dep
+        run: npm install
+      - name: Build Website With Parcel
+        run: npx parcel build "./src/index.html" --dist-dir "./dist" --public-url "./" --no-cache
+  image-build_job:
+    needs: app-build_job
+    runs-on: ubuntu-latest
+    steps:
+      - name: clone repo 
+        uses: actions/checkout@v6
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build Image 
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/g4w13:latest .
+      - name: List the images
+        run: docker images ls 
+      - name: Push Docker Image to DH
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/g4w13:latest
